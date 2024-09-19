@@ -3,6 +3,7 @@ import time
 
 # path_of_sql = r'/home/amnex/Documents/NMDC_NEW/TEMPLATES/DATABASE/DB_09_NOV_DEFAULT.sql'
 path_of_sql = r'D:/code/invoice/database/DB_BACKUP.sql'
+
 database_name = "invoice"
 delete_database = 'psql -h localhost -U postgres -p 5432 -c "DROP DATABASE IF EXISTS {};"'.format(database_name)
 create_database = 'psql -h localhost -U postgres -p 5432 -c "CREATE DATABASE {};"'.format(database_name)
