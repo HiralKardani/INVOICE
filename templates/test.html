@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Invoice Application</h1>
+        </header>
+
+        <div class="invoice-form">
+            <section class="company-info">
+                <h2>Company Information</h2>
+                <form id="company-info-form">
+                    <label for="company-name">Company Name</label>
+                    <input type="text" id="company-name" name="company-name" required>
+                    
+                    <label for="company-address">Address</label>
+                    <textarea id="company-address" name="company-address" rows="3" required></textarea>
+                    
+                    <label for="company-phone">Phone</label>
+                    <input type="tel" id="company-phone" name="company-phone" required>
+                    
+                    <label for="company-email">Email</label>
+                    <input type="email" id="company-email" name="company-email" required>
+                </form>
+            </section>
+
+            <section class="customer-info">
+                <h2>Customer Information</h2>
+                <form id="customer-info-form">
+                    <label for="customer-name">Customer Name</label>
+                    <input type="text" id="customer-name" name="customer-name" required>
+                    
+                    <label for="customer-address">Address</label>
+                    <textarea id="customer-address" name="customer-address" rows="3" required></textarea>
+                    
+                    <label for="customer-phone">Phone</label>
+                    <input type="tel" id="customer-phone" name="customer-phone" required>
+                    
+                    <label for="customer-email">Email</label>
+                    <input type="email" id="customer-email" name="customer-email" required>
+                </form>
+            </section>
+
+            <section class="invoice-items">
+                <h2>Invoice Items</h2>
+                <table id="items-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" name="item-description" required></td>
+                            <td><input type="number" name="item-quantity" required></td>
+                            <td><input type="number" name="item-price" required></td>
+                            <td class="item-total">$0.00</td>
+                            <td><button type="button" class="remove-item">Remove</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" id="add-item">Add Item</button>
+            </section>
+
+            <section class="invoice-total">
+                <h2>Invoice Total</h2>
+                <table>
+                    <tr>
+                        <th>Subtotal</th>
+                        <td id="subtotal">$0.00</td>
+                    </tr>
+                    <tr>
+                        <th>Tax (10%)</th>
+                        <td id="tax">$0.00</td>
+                    </tr>
+                    <tr>
+                        <th>Total</th>
+                        <td id="total">$0.00</td>
+                    </tr>
+                </table>
+            </section>
+        </div>
+
+        <div class="buttons">
+            <button id="download-pdf">Download PDF</button>
+            <button id="share-email">Share via Email</button>
+        </div>
+    </div>
+
+    <!-- jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Application JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

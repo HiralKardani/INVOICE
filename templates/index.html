@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+        }
+        
+        .navb {
+          float: left;
+        }
+        
+        .navb a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+        }
+        
+        .navb a:hover:not(.active) {
+          background-color: #111;
+        }
+        
+        .active {
+          background-color: #e95592;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        @media (max-width: 600px) {
+            th, td {
+                display: block;
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+            th::before, td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                text-align: left;
+                white-space: nowrap;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <ul>
+    <li class="navb"><a class="active" href="home">Dashboard</a></li>
+    <li class="navb"><a href="new_invoice">New invoice</a></li>
+    <li class="navb"><a href="product">Products</a></li>
+    <li class="navb"><a href="customer">Customer</a></li>
+    <li class="navb"><a href="logout">logout</a></li>
+    <li class="navb"><a href="">{{name}}</a></li>
+
+    </ul>
+
+    <h2>Invoice Details</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Sr. No.</th>
+                <th>Customer</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in result %}
+                <tr data-id="{{ data[0] }}">
+                    <td data-label="Sr. No.">{{ loop.index }}</td>
+                    <td data-label="Customer">{{ data[2] }}</td>
+                    <td data-label="Description">{{ data[6] }}</td>
+                    <td data-label="Amount">{{ data[10] }}</td>
+                    <td data-label="Status">{{ data[12] }}</td>
+                    <td data-label="Details"><a href="/invoice_details/{{ data[0] }}" data-id="{{ data[0] }}"> <button>Details</button> </a></td>
+                    <td data-label="Remove"><a  class="remove-item" href="/invoice_remove/{{ data[0] }}"> <button>Remove</button> </a></td>
+                    <!-- <td data-label="Remove"><button class="remove-item" data-id="{{ data[0] }}">Remove</button></td> -->
+               
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="details-modal" style="display: none;">
+        <!-- Modal content for displaying details -->
+        <h2>Invoice Details</h2>
+        <p id="invoice-details"></p>
+        <button id="close-modal">Close</button>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const detailsLinks = document.querySelectorAll('.details-link');
+            const modal = document.getElementById('details-modal');
+            const invoiceDetails = document.getElementById('invoice-details');
+            const closeModal = document.getElementById('close-modal');
+    
+            detailsLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const invoiceId = this.getAttribute('data-id');
+                    
+                    fetch(`/invoice_details/${invoiceId}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.error) {
+                                invoiceDetails.textContent = data.error;
+                            } else {
+                                invoiceDetails.textContent = JSON.stringify(data);
+                            }
+                            modal.style.display = 'block';
+                        })
+                        .catch(error => console.error('Error fetching invoice details:', error));
+                });
+            });
+
+
+            removeButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    console.log('Remove button clicked'); // Debug log
+                    const invoiceId = this.getAttribute('data-id');
+                    console.log('Invoice ID:', invoiceId); // Debug log
+                    
+                    fetch(`/invoice_remove/${invoiceId}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status); // Debug log
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            alert('Item removed successfully');
+                            location.reload(); // Reload the page to see the updated list
+                        } else {
+                            alert('Error removing item: ' + data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error removing item:', error));
+                });
+            });
+    
+    
+            closeModal.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+        });
+        </script>
+
+  
+
+
+</body>
+</html>

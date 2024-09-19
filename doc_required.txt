@@ -1,0 +1,5 @@
+----google setting required:https://myaccount.google.com/security
+-Go to google security>>generate app password and paste it in code.
+
+-pip install flask_mail
+-pip install xhtml2pdf

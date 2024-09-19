@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Details</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Invoice Details</h1>
+        </header>
+
+        <div class="invoice-details">
+            <p><strong>Invoice ID:</strong> {{ invoice[0] }}</p>
+            <p><strong>Invoice Number:</strong> {{ invoice[1] }}</p>
+            <p><strong>Customer:</strong> {{ invoice[2] }}</p>
+            <p><strong>Description:</strong> {{ invoice[3] }}</p>
+            <p><strong>Amount:</strong> {{ invoice[4] }}</p>
+            <p><strong>Status:</strong> {{ invoice[5] }}</p>
+        </div>
+
+        <div class="buttons">
+            <a href="/home" class="button">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

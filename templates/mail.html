@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .invoice-box { border: 1px solid #ddd; padding: 20px; border-radius: 5px; max-width: 800px; margin: 0 auto; }
+        .buttons { text-align: center; margin-top: 20px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="invoice-box" id="invoice-box">
+        <h1>Invoice #001</h1>
+        <p>Date: 2023-01-01</p>
+        <p>Billed To: John Doe</p>
+        <table border="1" width="100%" style="border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Product 1</td>
+                    <td>2</td>
+                    <td>$50.00</td>
+                    <td>$100.00</td>
+                </tr>
+                <tr>
+                    <td>Product 2</td>
+                    <td>1</td>
+                    <td>$150.00</td>
+                    <td>$150.00</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="text-align: right;">Subtotal</td>
+                    <td>$250.00</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="text-align: right;">Tax (10%)</td>
+                    <td>$25.00</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="text-align: right;">Total</td>
+                    <td>$275.00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="buttons">
+        <button onclick="downloadPDF()">Download PDF</button>
+        <button onclick="sendEmail()">Share via Email</button>
+    </div>
+
+    <!-- jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const invoiceBox = document.getElementById('invoice-box');
+            doc.html(invoiceBox, {
+                callback: function (doc) {
+                    doc.save('invoice.pdf');
+                },
+                x: 10,
+                y: 10
+            });
+        }
+
+        function sendEmail() {
+            const subject = encodeURIComponent('Invoice #001');
+            const body = encodeURIComponent(document.getElementById('invoice-box').innerText);
+            const email = 'mailto:?subject=' + subject + '&body=' + body;
+            window.location.href = email;
+        }
+    </script>
+</body>
+</html>

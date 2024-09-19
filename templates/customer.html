@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+        }
+        
+        .navb {
+          float: left;
+        }
+        
+        .navb a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+        }
+        
+        .navb a:hover:not(.active) {
+          background-color: #111;
+        }
+        
+        .active {
+          background-color: #e95592;
+        }
+    </style>
+</head>
+<body>
+    <ul>
+        <li class="navb"><a href="home">Dashboard</a></li>
+        <li class="navb"><a  href="new_invoice">New invoice</a></li>
+        <li class="navb"><a  href="product">Products</a></li>
+        <li class="navb"><a class="active" href="customer">Customer</a></li>
+        <li class="navb"><a href="logout">logout</a></li>
+        </ul>
+    <div class="container">
+        <header>
+            <h1>Customer Management</h1>
+        </header>
+
+        <div class="customer-form">
+            <h2>Add New Customer</h2>
+            <form action='add_customer' id="customer-form" method='post'>
+                <label for="customer-name">Customer Name</label>
+                <input type="text" id="customer-name" name="customer-name" required>
+                
+                <label for="customer-address">Address</label>
+                <textarea id="customer-address" name="customer-address" rows="3" required></textarea>
+                
+                <label for="customer-phone">Phone</label>
+                <input type="tel" id="customer-phone" name="customer-phone" required>
+                
+                <label for="customer-email">Email</label>
+                <input type="email" id="customer-email" name="customer-email" required>
+
+                <center>
+                    <button style="font-size: 20px;" type="submit">Add Customer</button>
+                </center>
+                
+            </form>
+        </div>
+
+        <div class="customer-list">
+            <h2>Customer List</h2>
+            <table id="customer-table">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ data[0] }}</td>
+                        <td>{{ data[1] }}</td>
+                        <td>{{ data[2] }}</td>
+                        <td>{{ data[3] }}</td>
+                        <!-- <td><button>Remove</button></td> -->
+                        <td data-label="Remove"><a  class="remove-item" href="/customer_remove/{{ data[0] }}"> <button>Remove</button> </a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- <script src="/static/js/scripts.js"></script> -->
+</body>
+</html>

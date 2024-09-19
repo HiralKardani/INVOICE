@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Invoice</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+        }
+        
+        .navb {
+          float: left;
+        }
+        
+        .navb a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+        }
+        
+        .navb a:hover:not(.active) {
+          background-color: #111;
+        }
+        
+        .active {
+          background-color: #e95592;
+        }
+    </style>
+</head>
+<body>
+    <ul>
+        <li class="navb"><a href="home">Dashboard</a></li>
+        <li class="navb"><a class="active" href="new_invoice">New invoice</a></li>
+        <li class="navb"><a href="product">Products</a></li>
+        <li class="navb"><a href="customer">Customer</a></li>
+        <li class="navb"><a href="logout">logout</a></li>
+        </ul>
+    <div class="container">
+        <header>
+            <h1>Create New Invoice</h1>
+        </header>
+
+        <div class="invoice-form">
+            <form action='get_invoice' id="invoice-form" method="post">
+                <section class="customer-info">
+                    <h2>Customer Information</h2>
+                    <label for="customer-select">Select Customer</label>
+                    <select id="customer-select" name="customer-select" required style="font-size: 18px; width:100%; padding: 2px; margin: 6px;">
+                        <option value="" data-address="" data-phone="" data-email="">Select a customer</option>
+                        {% for customer in customer_result %}
+                            <option value="{{ customer[2] }}" 
+                                    data-address="{{ customer[3] }}" 
+                                    data-phone="{{ customer[4] }}" 
+                                    data-email="{{ customer[5] }}">
+                                {{ customer[2] }}
+                            </option>
+
+                        {% endfor %}
+                    </select>
+
+                    <label for="customer-address">Address</label>
+                    <textarea id="customer-address" name="customer-address" rows="3" required></textarea>
+                    
+                    <label for="customer-phone">Phone</label>
+                    <input type="tel" id="customer-phone" name="customer-phone" required>
+                    
+                    <label for="customer-email">Email</label>
+                    <input type="email" id="customer-email" name="customer-email" required>
+                </section>
+
+                <section class="invoice-items">
+                    <h2>Invoice Items</h2>
+                    <table id="items-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <select class="item-description"  name="item"  required>
+
+                                        <!-- <option value="product4" data-price="40.00">Product 4</option> -->
+                                        {% for i in result %}
+                                        <option value="{{ i[2] }}" data-price="{{i[-1]}}" >{{ i[2] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td><input type="number" name="item-quantity" class="item-quantity" required min="1" value="1"></td>
+                                <td><input type="number" name="item-price" class="item-price" readonly></td>
+                                <td class="item-total">$0.00</td>
+                                <td><button type="button" class="remove-item">Remove</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" id="add-item">Add Item</button>
+                </section>
+
+
+                <section class="invoice-total">
+                    <h2>Invoice Total</h2>
+                    <table>
+                        <tr>
+                            <th>Subtotal</th>
+                            <td id="subtotal">$0.00</td>
+                        </tr>
+                        <tr>
+                            <th>Tax (10%)</th>
+                            <td id="tax">$0.00</td>
+                        </tr>
+                        <tr>
+                            <th>Total</th>
+                            <td id="total">$0.00</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <label for="status">Status:</label>
+                <select name="status" id="status">
+                    <option value="Paid" >Paid</option>
+                    <option value="Pending" >Pending</option>
+                </select>
+
+
+                <div class="buttons">
+                    <button type="submit" id="save-invoice">Save Invoice</button>
+                    <a href="home"><button type="button" id="cancel-invoice">Cancel</button></a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const customerSelect = document.getElementById('customer-select');
+            const customerAddress = document.getElementById('customer-address');
+            const customerPhone = document.getElementById('customer-phone');
+            const customerEmail = document.getElementById('customer-email');
+
+            customerSelect.addEventListener('change', function() {
+                const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+                customerAddress.value = selectedOption.getAttribute('data-address');
+                customerPhone.value = selectedOption.getAttribute('data-phone');
+                customerEmail.value = selectedOption.getAttribute('data-email');
+            });
+
+            const itemsTable = document.getElementById('items-table');
+            const subtotalElement = document.getElementById('subtotal');
+            const taxElement = document.getElementById('tax');
+            const totalElement = document.getElementById('total');
+
+            function updateRow(row) {
+                const description = row.querySelector('.item-description');
+                const quantity = row.querySelector('.item-quantity');
+                const price = row.querySelector('.item-price');
+                const total = row.querySelector('.item-total');
+
+                const selectedOption = description.options[description.selectedIndex];
+                const unitPrice = parseFloat(selectedOption.getAttribute('data-price'));
+                const qty = parseFloat(quantity.value);
+
+                price.value = unitPrice.toFixed(2);
+                total.textContent = '$' + (unitPrice * qty).toFixed(2);
+
+                updateTotals();
+            }
+
+            function updateTotals() {
+                let subtotal = 0;
+                const rows = itemsTable.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const total = row.querySelector('.item-total').textContent.replace('$', '');
+                    subtotal += parseFloat(total);
+                });
+
+                const tax = subtotal * 0.10;
+                const total = subtotal + tax;
+
+                subtotalElement.textContent = '$' + subtotal.toFixed(2);
+                taxElement.textContent = '$' + tax.toFixed(2);
+                totalElement.textContent = '$' + total.toFixed(2);
+            }
+
+            itemsTable.addEventListener('change', function(e) {
+                if (e.target.classList.contains('item-description')) {
+                    const row = e.target.closest('tr');
+                    updateRow(row);
+                }
+            });
+
+            itemsTable.addEventListener('input', function(e) {
+                if (e.target.classList.contains('item-quantity')) {
+                    const row = e.target.closest('tr');
+                    updateRow(row);
+                }
+            });
+
+            document.getElementById('add-item').addEventListener('click', function() {
+                const newRow = itemsTable.querySelector('tbody tr').cloneNode(true);
+                newRow.querySelector('.item-quantity').value = 1;
+                newRow.querySelector('.item-price').value = '';
+                newRow.querySelector('.item-total').textContent = '$0.00';
+                itemsTable.querySelector('tbody').appendChild(newRow);
+                updateRow(newRow);
+            });
+
+            itemsTable.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-item')) {
+                    const row = e.target.closest('tr');
+                    row.parentNode.removeChild(row);
+                    updateTotals();
+                }
+            });
+
+            // Initialize the first row
+            updateRow(itemsTable.querySelector('tbody tr'));
+        });
+    </script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+     <script>
+         document.getElementById('download-pdf-button').addEventListener('click', function() {
+             window.location.href = '/download-pdf';
+         });
+ 
+         $(document).ready(function() {
+             $('#share-email-button').click(function() {
+                 var recipient = prompt("Enter recipient email address:");
+                 if (recipient) {
+                     $.ajax({
+                         url: '/send-pdf-email',
+                         method: 'POST',
+                         contentType: 'application/json',
+                         data: JSON.stringify({ recipient: recipient }),
+                         success: function(response) {
+                             alert(response.message);
+                         },
+                         error: function(error) {
+                             alert('Error sending email: ' + error.responseJSON.message);
+                         }
+                     });
+                 }
+             });
+         });
+     </script>
+</body>
+</html>

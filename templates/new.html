@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Invoice</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Create New Invoice</h1>
+        </header>
+
+            <div class="invoice-form">
+            <form action='get_invoice' id="invoice-form" method="post" >
+
+                <section class="customer-info">
+                    <h2>Customer Information</h2>
+
+                        <label for="customer-name">Customer Name</label>
+                        <input type="text" id="customer-name" name="customer-name" required>
+                        
+                        <label for="customer-address">Address</label>
+                        <textarea id="customer-address" name="customer-address" rows="3" required></textarea>
+                        
+                        <label for="customer-phone">Phone</label>
+                        <input type="tel" id="customer-phone" name="customer-phone" required>
+                        
+                        <label for="customer-email">Email</label>
+                        <input type="email" id="customer-email" name="customer-email" required>
+                  
+                </section>
+          
+
+                <section class="invoice-items">
+                    <h2>Invoice Items</h2>
+                    <table id="items-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- <tr>
+                                <td>
+                                <select style="font-size: 20px; padding:3px; margin: 2px;">
+                                    {% for i in product_list %}
+                                        <option value="option1" data-price="10.00" >{{ i }}</option>
+                                    {% endfor %}
+    
+                                </select></td>
+                                <td><input type="number" name="item-quantity" required></td>
+                                <td><input type="number" name="item-price"  required></td>
+
+                                <td class="item-total">$0.00</td>
+                                <td><button type="button" class="remove-item">Remove</button></td>
+                            </tr> -->
+
+                            <tr>
+                                <td>
+                                    <select class="item-description"  name="item"  required>
+
+                                        <!-- <option value="product4" data-price="40.00">Product 4</option> -->
+                                        {% for i in result %}
+                                        <option value="{{ i[2] }}" data-price="{{i[-1]}}" >{{ i[2] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td><input type="number" name="item-quantity" value="item-quantity" class="item-quantity" required min="1" value="1"></td>
+                                <td><input type="number" name="item-price"  value="item-price" class="item-price" readonly></td>
+                                <td class="item-total">$0.00</td>
+                                <td><button type="button" class="remove-item">Remove</button></td>
+                            </tr>
+
+                            
+                        </tbody>
+                    </table>
+                    <button type="button" id="add-item">Add Item</button>
+                </section>
+
+                <section class="invoice-total">
+                    <h2>Invoice Total</h2>
+                    <table>
+                        <tr>
+                            <th>Subtotal</th>
+                            <td id="subtotal" name="subtotal" value="subtotal">$0.00</td>
+                        </tr>
+                        <tr>
+                            <th>Tax (10%)</th>
+                            <td id="tax" name="tax"  value="tax">$0.00</td>
+                        </tr>
+                        <tr>
+                            <th>Total</th>
+                            <td id="total" name="total" value="total">$0.00</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <div class="buttons">
+                    <button type="submit" id="save-invoice" >Save Invoice</button>
+                    <button type="button" id="cancel-invoice" >Cancel</button>
+                </div>
+            </form>
+
+            </div>
+    </div>
+
+    <!-- <script src="/static/js/scripts.js"></script> -->
+  
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const itemsTable = document.getElementById('items-table');
+            const subtotalElement = document.getElementById('subtotal');
+            const taxElement = document.getElementById('tax');
+            const totalElement = document.getElementById('total');
+
+            function updateRow(row) {
+                const description = row.querySelector('.item-description');
+                const quantity = row.querySelector('.item-quantity');
+                const price = row.querySelector('.item-price');
+                const total = row.querySelector('.item-total');
+
+                const selectedOption = description.options[description.selectedIndex];
+                const unitPrice = parseFloat(selectedOption.getAttribute('data-price'));
+                const qty = parseFloat(quantity.value);
+
+                price.value = unitPrice.toFixed(2);
+                total.textContent = '$' + (unitPrice * qty).toFixed(2);
+
+                updateTotals();
+            }
+
+            function updateTotals() {
+                let subtotal = 0;
+                const rows = itemsTable.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const total = row.querySelector('.item-total').textContent.replace('$', '');
+                    subtotal += parseFloat(total);
+                });
+
+                const tax = subtotal * 0.10;
+                const total = subtotal + tax;
+
+                subtotalElement.textContent = '$' + subtotal.toFixed(2);
+                taxElement.textContent = '$' + tax.toFixed(2);
+                totalElement.textContent = '$' + total.toFixed(2);
+
+                subtotalElement.value = subtotalElement.textContent
+                taxElement.value = taxElement.textContent
+                totalElement.value = totalElement.textContent
+
+            }
+
+            itemsTable.addEventListener('change', function(e) {
+                if (e.target.classList.contains('item-description')) {
+                    const row = e.target.closest('tr');
+                    updateRow(row);
+                }
+            });
+
+            itemsTable.addEventListener('input', function(e) {
+                if (e.target.classList.contains('item-quantity')) {
+                    const row = e.target.closest('tr');
+                    updateRow(row);
+                }
+            });
+
+            document.getElementById('add-item').addEventListener('click', function() {
+                const newRow = itemsTable.querySelector('tbody tr').cloneNode(true);
+                newRow.querySelector('.item-quantity').value = 1;
+                newRow.querySelector('.item-price').value = '';
+                newRow.querySelector('.item-total').textContent = '$0.00';
+                itemsTable.querySelector('tbody').appendChild(newRow);
+                updateRow(newRow);
+            });
+            
+            itemsTable.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-item')) {
+                    const row = e.target.closest('tr');
+                    row.parentNode.removeChild(row);
+                    updateTotals();
+                }
+            });
+
+            // Initialize the first row
+            updateRow(itemsTable.querySelector('tbody tr'));
+        });
+    </script>
+
+
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const itemsTable = document.getElementById('items-table');
+            const subtotalElement = document.getElementById('subtotal');
+            const taxElement = document.getElementById('tax');
+            const totalElement = document.getElementById('total');
+            const form = document.getElementById('invoice-form');
+
+            function updateRow(row) {
+                const description = row.querySelector('.item-description');
+                const quantity = row.querySelector('.item-quantity');
+                const price = row.querySelector('.item-price');
+                const total = row.querySelector('.item-total');
+
+                const selectedOption = description.options[description.selectedIndex];
+                const unitPrice = parseFloat(selectedOption.getAttribute('data-price'));
+                const qty = parseFloat(quantity.value);
+
+                price.value = unitPrice.toFixed(2);
+                total.textContent = '$' + (unitPrice * qty).toFixed(2);
+
+                updateTotals();
+            }
+
+            function updateTotals() {
+                let subtotal = 0;
+                const rows = itemsTable.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const total = row.querySelector('.item-total').textContent.replace('$', '');
+                    subtotal += parseFloat(total);
+                });
+
+                const tax = subtotal * 0.10;
+                const total = subtotal + tax;
+
+                subtotalElement.textContent = '$' + subtotal.toFixed(2);
+                taxElement.textContent = '$' + tax.toFixed(2);
+                totalElement.textContent = '$' + total.toFixed(2);
+            }
+
+            itemsTable.addEventListener('change', function(e) {
+                if (e.target.classList.contains('item-description')) {
+                    const row = e.target.closest('tr');
+                    updateRow(row);
+                }
+            });
+
+            itemsTable.addEventListener('input', function(e) {
+                if (e.target.classList.contains('item-quantity')) {
+                    const row = e.target.closest('tr');
+                    updateRow(row);
+                }
+            });
+
+            document.getElementById('add-item').addEventListener('click', function() {
+                const newRow = itemsTable.querySelector('tbody tr').cloneNode(true);
+                newRow.querySelector('.item-quantity').value = 1;
+                newRow.querySelector('.item-price').value = '';
+                newRow.querySelector('.item-total').textContent = '$0.00';
+                itemsTable.querySelector('tbody').appendChild(newRow);
+                updateRow(newRow);
+            });
+
+            itemsTable.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-item')) {
+                    const row = e.target.closest('tr');
+                    row.parentNode.removeChild(row);
+                    updateTotals();
+                }
+            });
+
+            document.getElementById('save-invoice').addEventListener('click', function() {
+                const formData = new FormData(form);
+
+                const items = [];
+                itemsTable.querySelectorAll('tbody tr').forEach(row => {
+                    const description = row.querySelector('.item-description').value;
+                    const quantity = row.querySelector('.item-quantity').value;
+                    const price = row.querySelector('.item-price').value;
+
+                    if (description && quantity && price) {
+                        items.push({
+                            description,
+                            quantity,
+                            price
+                        });
+                    }
+                });
+
+                formData.append('items', JSON.stringify(items));
+                formData.append('subtotal', subtotalElement.textContent.replace('$', ''));
+                formData.append('tax', taxElement.textContent.replace('$', ''));
+                formData.append('total', totalElement.textContent.replace('$', ''));
+
+                fetch('/save-invoice', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('Invoice saved successfully!');
+                    } else {
+                        alert('Failed to save invoice.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while saving the invoice.');
+                });
+            });
+
+            // Initialize the first row
+            updateRow(itemsTable.querySelector('tbody tr'));
+        });
+    </script> -->
+
+
+</body>
+</html>
