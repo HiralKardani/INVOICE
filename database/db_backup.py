@@ -9,4 +9,4 @@ path_of_log= r'D:/code/invoice/database/DB_BACKUP.log'
 database_name="invoice"
 command = r"pg_dump -h localhost -U postgres -p 5432 --verbose {} > {}".format(database_name,path_of_sql)
 # print(command)
-os.system(command)
+os.system(command)git remote set-url origin https://github.com/username/new-repository.git
