@@ -391,25 +391,25 @@ def get_invoice():
 
 
 
-# @app.route('/download-pdf')
-# def download_pdf():
-# 	global invoice
-# 	global prodect_list
-# 	global formatted_date
-# 	global formatted_due_date
+@app.route('/download-pdf')
+def download_pdf():
+	global invoice
+	global prodect_list
+	global formatted_date
+	global formatted_due_date
 
-# 	# Render the HTML template
-# 	rendered_html = render_template('invoice_test.html', invoice=invoice, prodect_list=prodect_list,formatted_date=formatted_date, formatted_due_date=formatted_due_date)
+	# Render the HTML template
+	rendered_html = render_template('invoice_test.html', invoice=invoice, prodect_list=prodect_list,formatted_date=formatted_date, formatted_due_date=formatted_due_date)
 	
-# 	# Create a PDF
-# 	pdf = convert_html_to_pdf(rendered_html)
+	# Create a PDF
+	pdf = convert_html_to_pdf(rendered_html)
 	
-# 	# Create a response object and set the appropriate headers
-# 	response = make_response(pdf)
-# 	response.headers['Content-Type'] = 'application/pdf'
-# 	response.headers['Content-Disposition'] = 'attachment; filename=invoice_{}.pdf'.format(invoice[2])
+	# Create a response object and set the appropriate headers
+	response = make_response(pdf)
+	response.headers['Content-Type'] = 'application/pdf'
+	response.headers['Content-Disposition'] = 'attachment; filename=invoice_{}.pdf'.format(invoice[2])
 	
-# 	return response
+	return response
 
 def convert_html_to_pdf(source_html):
 	# Convert HTML to PDF
